@@ -21,4 +21,4 @@ pip install camstim/.
 4. Download and install AVbin for your OS.
  
 ## Scripts
-You can try out a test script by navigating into the test-scripts folder and running any of the example file: python cohort-1-habituation-5min-drifting.py
+You can try out a test script by navigating into the test-scripts folder and running any of the example file: python flashes.py
