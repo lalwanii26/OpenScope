@@ -1,0 +1,23 @@
+"""
+natural_movie_1.stim
+
+Loads a movie stimulus.  Movies must be UINT8 and (t, h, w) shape.
+
+TODO: Replace this with MovieStim (see sweepstim.py)
+
+"""
+#import os
+#import shutil
+#import numpy as np
+#from camstim.core import ImageStimNumpyuByte, checkDirs
+
+moviesource = r"C:\\stimulus_files\\TOE\\Movie_TOE1.npy"
+
+stimulus = MovieStim(movie_path=moviesource,
+                     window=window,
+                     frame_length=2.0/60.0,
+                     size=(1920, 1080),
+                     start_time=0.0,
+                     stop_time=None,
+                     flip_v=True,
+                     runs=20,)
