@@ -13,12 +13,12 @@
 
 ## Installation with Anaconda or Miniconda:
 1. Navigate to repository and install conda environment.
-conda env create -f openscope-glo-stim.yml
+`conda env create -f openscope-glo-stim.yml`
 2. Activate the environment.
-conda activate openscope-glo-stim
+`conda activate openscope-glo-stim`
 3. Install the AIBS camstim package in the environment.
-pip install camstim/.
-4. Download and install AVbin for your OS.
+`pip install camstim/.`
+4. Download and install `AVbin` for your OS.
  
 ## Scripts
 You can try out a test script by navigating into the test-scripts folder and running any of the example file: python flashes.py
