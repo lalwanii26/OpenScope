@@ -1,6 +1,6 @@
 # openscope-stim
 
-Dependencies:
+## Dependencies:
 * Windows OS (see Camstim package)
 * python 2.7
 * psychopy 1.82.01
