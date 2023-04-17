@@ -7,7 +7,7 @@ stimulus = Stimulus(visual.GratingStim(window,
                     sf=0,
                     ),
     sweep_params={
-               'Contrast': ([0.8], 0),
+               'Contrast': ([1], 0),
                'Color':([-1,1], 1)
                },
     sweep_length=0.25,

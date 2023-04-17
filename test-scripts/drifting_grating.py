@@ -1,14 +1,12 @@
 """
 brain_observatory_stimulus.py
 """
-from psychopy import visual
-from camstim import Stimulus, SweepStim
-from camstim import Foraging
-from camstim import Window, Warp
-import time
-import datetime
 
-from psychopy import monitors, visual
+from camstim import Stimulus, SweepStim
+from camstim import Window, Warp
+from psychopy import monitors
+import os
+
 dist = 15.0
 wid = 52.0
 
@@ -22,50 +20,18 @@ window = Window(fullscr=True,
                 screen=1,
                 warp=Warp.Spherical,)
 
-
-
-fl250_path =	r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\flash_250ms.stim" #
-dg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\drifting_gratings.stim"
-sg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\static_gratings.stim"
-ns_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\natural_scenes.stim"
-
-# load our stimuli
-# g20 = Stimulus.from_file(g20_path, window) 
-# fl250 = Stimulus.from_file(fl250_path, window) 
-
+## get path of current file
+path = os.path.dirname(os.path.abspath(__file__))
+dg_path = path + r"\..\stim_files\drifting_gratings.stim"
 dg = Stimulus.from_file(dg_path, window) 
-# nm1 = Stimulus.from_file(nm1_path, window)
-# nm3 = Stimulus.from_file(nm3_path, window)
 
-# ns = Stimulus.from_file(ns_path, window)
-sg = Stimulus.from_file(sg_path, window)
-# nm1 = Stimulus.from_file(nm1_path, window)
-
-# RF mapping / flashes
-# g20_ds = [(0, 1200)]
-# fl250_ds = [(1200, 1500)]
-# fl250_ds = [(0, 1200)]
-# part1s = fl250_ds[0][1] # end of part 1
 part1s = 0
 
 dg_ds = [(part1s+0, part1s+600),(part1s+1590, part1s+2190), (part1s+3120, part1s+3810)]
-# part2s = dg_ds[2][1] # end of part 2
-
-# nm3_ds = [(part1s+630, part1s+1230), (part1s+2490, part1s+3090)]
-# nm1_ds = [(part1s+1260, part1s+1560), (part2s+2310, part2s+2610) ]
-
-# ns_ds = [(part2s+510, part2s+990), (part2s+1290, part2s+1770), (part2s+2640, part2s+3180)]
-# part2s  = 0
-# sg_ds = [(part2s+0, part2s+480), (part2s+1800, part2s+2280), (part2s+3210, part2s+3750)]
 
 
-# g20.set_display_sequence(g20_ds)
-# fl250.set_display_sequence(fl250_ds)
 dg.set_display_sequence(dg_ds)
-# nm3.set_display_sequence(nm3_ds)
-# nm1.set_display_sequence(nm1_ds)
-# ns.set_display_sequence(ns_ds)
-# sg.set_display_sequence(sg_ds)
+
 
 # kwargs
 params = {
@@ -88,23 +54,11 @@ params = {
 
 # create SweepStim instance
 ss = SweepStim(window,
-            #    stimuli=[g20, fl250, dg, ns, sg],
-            #    stimuli=[g20, fl250, dg, ns, sg],
-                # stimuli=[fl250],
-            #    stimuli=[dg, ns, sg],
                stimuli=[dg],
                pre_blank_sec=0,
                post_blank_sec=0,
                params=params,
                )
-
-# add in foraging so we can track wheel, potentially give rewards, etc
-f = Foraging(window=window,
-            auto_update=False,
-            params=params,
-            nidaq_tasks={'digital_input': ss.di,
-                         'digital_output': ss.do,})  #share di and do with SS
-ss.add_item(f, "foraging")
 
 # run it
 ss.run()
