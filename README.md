@@ -1,4 +1,4 @@
-# openscope-stim
+# openscope-barcoingstim
 
 ## Dependencies:
 * Windows OS (see Camstim package)
