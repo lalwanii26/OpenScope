@@ -1,16 +1,9 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 
-camstim
-
-=======
-
-
-Visual stimulus and behavior library for python2.
-
+camstim - Visual stimulus and behavior library for python2
 
 ## Installation
-
 
 Create and activate an environment for camstim:
 
@@ -31,7 +24,3 @@ The requirements.txt contains some optional dependencies for hardware control an
 
     
 $pip install -r requirements.txt
-
-
-
-## Tests
