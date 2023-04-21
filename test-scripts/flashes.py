@@ -2,11 +2,13 @@
 brain_observatory_stimulus.py
 """
 
+# Import necessary libraries 
 from psychopy import monitors, visual
 from camstim import Stimulus, SweepStim
 from camstim import Window, Warp
 import os
 
+# Define monitor parameters 
 dist = 15.0
 wid = 52.0
 
@@ -21,12 +23,12 @@ window = Window(fullscr=True,
                 warp=Warp.Spherical,)
 
 
-## get path of current file
+## Get path of current file
 path = os.path.dirname(os.path.abspath(__file__))
 
 # fl250 = Stimulus.from_file(fl250_path, window) 
 
-## read color from comma separated file
+## read color information from comma separated file
 with open(path + r"\TestSequenceBWN.txt") as f:
     Color = f.readlines()
     Color = [x.split(',') for x in Color]   
@@ -37,7 +39,7 @@ with open(path + r"\TestSequenceBWN.txt") as f:
     ## convert to float
     Color = [[int(y) for y in x] for x in Color]
 
-
+# Create a stimulus using a grating with varying color sweeps 
 fl250 = Stimulus(visual.GratingStim(window,
                     pos=(0, 0),
                     units='deg',
@@ -61,10 +63,12 @@ fl250 = Stimulus(visual.GratingStim(window,
 
 
 # ghg
+# Define display sequence 
 fl250_ds = [(0, 1200)]
 fl250.set_display_sequence(fl250_ds)
 
 # kwargs
+# Set keyword argumets for SweepStim instance 
 params = {
     'syncpulse': True,
     'syncpulseport': 1,
@@ -82,7 +86,7 @@ params = {
 }
 
 
-# create SweepStim instance
+# Create SweepStim instance
 ss = SweepStim(window,
                stimuli=[fl250],
                pre_blank_sec=0,
@@ -90,5 +94,5 @@ ss = SweepStim(window,
                params=params,
                )
 
-# run it
+# Run the SweepStim instance
 ss.run()
