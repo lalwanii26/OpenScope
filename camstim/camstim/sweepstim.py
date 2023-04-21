@@ -132,6 +132,14 @@ class Stimulus(EObject):
         if self.shuffle:
             random.shuffle(self.sweep_order)
 
+        # print("sweep_order = ", self.sweep_order[:300])
+        # print("sweep_table = ", len(self.sweep_table))
+        # print("sweep_order = ", len(self.sweep_order))
+        # print("dimnames = ", self.dimnames)
+
+        ## What is sweep
+        ## sweep is 
+
     def _build_sweep_frames(self):
         """
         Build start/stop frame pairs.
@@ -158,6 +166,16 @@ class Stimulus(EObject):
         # start time
         seq.extend([-1]*int(self.fps*self.start_time))
 
+        # print("fps = ", self.fps)
+        # print("sweep_frames = ", len(self.sweep_frames))
+
+
+        # k = 300
+        # for i in range(len(self.sweep_frames)):
+        #     self.sweep_frames[i] = (i*k, (i+1)*k - 1)
+
+        # print("sweep_frames = ", self.sweep_frames)
+        # print("sweep_frames = ", len(self.sweep_frames))
         # sweeps
         for index, sweep in enumerate(self.sweep_frames):
             seq.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))
@@ -169,7 +187,13 @@ class Stimulus(EObject):
             seq = seq[:stop_frame]
 
         self.frame_list = np.array(seq, dtype=np.int32)
-        self.total_frames = len(self.frame_list)
+        # print("frame_list = ", self.frame_list)
+        # self.total_frames = len(self.frame_list)
+        # print("total_frames = ", self.total_frames)
+        # for i in range(k+1):
+            # print("frame_list[", i, "] = ", self.frame_list[i])
+
+        # self.sweep_frames = []
 
     def get_total_frames(self):
         """
@@ -353,6 +377,11 @@ class Stimulus(EObject):
         seq0 = []
 
         self._build_sweep_frames()
+
+        print("this code is running and it shouldn't be")
+        k = 300
+        for i in range(len(self.sweep_frames)):
+            self.sweep_frames[i] = (i*k, (i+1)*k - 1)
 
         for index, sweep in enumerate(self.sweep_frames):
             seq0.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))
@@ -625,6 +654,8 @@ class NaturalScenes(Stimulus):
         Overwrites the stimulus `_build_sweep_table` method.
         """
         self.sweep_table, self.sweep_order, self.dimnames = [], range(len(self.stim)), []
+        print("len of sweep order", len(self.sweep_order))
+        print("sweep order", self.sweep_order)
         if self.blank_sweeps is not 0:
             segments = [self.sweep_order[i:i+self.blank_sweeps] for i in range(0, len(self.sweep_order), self.blank_sweeps)]
             self.sweep_order = []
@@ -633,6 +664,9 @@ class NaturalScenes(Stimulus):
                     self.sweep_order.append(y)
                 if len(x) == self.blank_sweeps:
                     self.sweep_order.append(-1)
+
+        print("len of sweep order", len(self.sweep_order))
+        print("sweep order", self.sweep_order)
         self.sweep_order *= self.runs
 
         if self.shuffle:

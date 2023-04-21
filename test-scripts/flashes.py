@@ -50,16 +50,17 @@ fl250 = Stimulus(visual.GratingStim(window,
                'Contrast': ([1], 0),
                'Color':(Color[0], 1)
                },
-    sweep_length=0.25,
+    sweep_length=0.1,
     start_time=0.0,
     blank_length=0,
     blank_sweeps=0,
     runs=75,
-    shuffle=True,
+    shuffle=False,
     save_sweep_table=True,
     )
 
 
+# ghg
 fl250_ds = [(0, 1200)]
 fl250.set_display_sequence(fl250_ds)
 
