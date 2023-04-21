@@ -379,9 +379,10 @@ class Stimulus(EObject):
         self._build_sweep_frames()
 
         print("this code is running and it shouldn't be")
-        k = 300
+        k = 300 ## Number of frames to show each contrast value
         for i in range(len(self.sweep_frames)):
             self.sweep_frames[i] = (i*k, (i+1)*k - 1)
+
 
         for index, sweep in enumerate(self.sweep_frames):
             seq0.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))
