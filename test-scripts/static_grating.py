@@ -1,6 +1,8 @@
 """
 brain_observatory_stimulus.py
 """
+
+# import necessary libraries 
 from psychopy import visual
 from camstim import Stimulus, SweepStim
 from camstim import Foraging
@@ -9,6 +11,8 @@ import time
 import datetime
 
 from psychopy import monitors, visual
+
+# Define distance and width parameters for monitor
 dist = 15.0
 wid = 52.0
 
@@ -23,13 +27,13 @@ window = Window(fullscr=True,
                 warp=Warp.Spherical,)
 
 
-
+# Define file paths for stimuli   
 fl250_path =	r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\flash_250ms.stim" #
 dg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\drifting_gratings.stim"
 sg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\static_gratings.stim"
 ns_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\natural_scenes.stim"
 
-# load our stimuli
+
 # g20 = Stimulus.from_file(g20_path, window) 
 # fl250 = Stimulus.from_file(fl250_path, window) 
 
@@ -65,6 +69,8 @@ sg_ds = [(part2s+0, part2s+480), (part2s+1800, part2s+2280), (part2s+3210, part2
 # nm3.set_display_sequence(nm3_ds)
 # nm1.set_display_sequence(nm1_ds)
 # ns.set_display_sequence(ns_ds)
+
+# load our stimuli from the file path
 sg.set_display_sequence(sg_ds)
 
 # kwargs
@@ -86,7 +92,7 @@ params = {
 
 # W7DT12722
 
-# create SweepStim instance
+# Create SweepStim instance
 ss = SweepStim(window,
             #    stimuli=[g20, fl250, dg, ns, sg],
             #    stimuli=[g20, fl250, dg, ns, sg],
