@@ -1,16 +1,17 @@
 """
 brain_observatory_stimulus.py
 """
-
+# Import required modules
 from camstim import Stimulus, SweepStim
 from camstim import Window, Warp
 from psychopy import monitors
 import os
 
+# Define monitor settings 
 dist = 15.0
 wid = 52.0
 
-# create a monitor
+# Create a monitor object 
 monitor = monitors.Monitor("testMonitor", distance=dist, width=wid) #"Gamma1.Luminance50"
 
 # Create display window
@@ -21,18 +22,20 @@ window = Window(fullscr=True,
                 warp=Warp.Spherical,)
 
 ## get path of current file
+# Define the path to stimulus files 
 path = os.path.dirname(os.path.abspath(__file__))
 dg_path = path + r"\..\stim_files\drifting_gratings.stim"
+
+# Load the stimulus from file 
 dg = Stimulus.from_file(dg_path, window) 
 
+
+# Define rhe display sequence for the stimulus 
 part1s = 0
-
 dg_ds = [(part1s+0, part1s+600),(part1s+1590, part1s+2190), (part1s+3120, part1s+3810)]
-
-
 dg.set_display_sequence(dg_ds)
 
-
+# Define additional parameters for the stimulus presentation 
 # kwargs
 params = {
     'syncpulse': True,
@@ -52,7 +55,7 @@ params = {
 
 # W7DT12722
 
-# create SweepStim instance
+# Create SweepStim instance with the loaded stimulus and parameters 
 ss = SweepStim(window,
                stimuli=[dg],
                pre_blank_sec=0,
@@ -60,6 +63,6 @@ ss = SweepStim(window,
                params=params,
                )
 
-# run it
+# run the stimulus presentation
 ss.run()
 
