@@ -4,7 +4,7 @@ brain_observatory_stimulus.py
 # Import required modules
 from camstim import Stimulus, SweepStim
 from camstim import Window, Warp
-from psychopy import monitors
+from psychopy import monitors, visual
 import os
 
 # Define monitor settings 
@@ -19,20 +19,54 @@ window = Window(fullscr=True,
                 # monitor= 'Gamma1.Luminance50',          # MS 
                 monitor = monitor,
                 screen=1,
-                warp=Warp.Spherical,)
+                warp=Warp.Spherical,
+                )
 
-## get path of current file
-# Define the path to stimulus files 
+
+
 path = os.path.dirname(os.path.abspath(__file__))
-dg_path = path + r"\..\stim_files\drifting_gratings.stim"
+
+# with open(path + r"\TestSequenceBWN.txt") as f:
+with open(path + r"\TestSequenceRamp.txt") as f:
+    Color = f.readlines()
+    Color = [x.split(',') for x in Color]   
+    Color = [x for x in Color if len(x) > 1]
+    Color = [[y.strip() for y in x] for x in Color]
+    ## remove empty strings
+    Color = [[y for y in x if y] for x in Color]
+    ## convert to float
+    Color = [[float(y) for y in x] for x in Color]
+
 
 # Load the stimulus from file 
-dg = Stimulus.from_file(dg_path, window) 
-
+dg = Stimulus(visual.GratingStim(window,
+                    pos=(0, 0),
+                    units='deg',
+                    tex="sqr",
+                    size=(250, 250),
+                    mask="None",
+                    texRes=256,
+                    sf=0.1,
+                    ),
+    sweep_params={
+               'Contrast': ([0.8], 0),
+               'TF': ([4.0], 1),
+               'SF': ([0.04], 2),
+               'Ori': ([45], 3),
+               },
+    sweep_length=2.0,
+    start_time=0.0,
+    blank_length=0,
+    blank_sweeps=0,
+    runs=15,
+    shuffle=False,
+    save_sweep_table=True,
+    # kframes = 1200,
+    )
 
 # Define rhe display sequence for the stimulus 
 part1s = 0
-dg_ds = [(part1s+0, part1s+600),(part1s+1590, part1s+2190), (part1s+3120, part1s+3810)]
+dg_ds = [(part1s+0, part1s+600)]
 dg.set_display_sequence(dg_ds)
 
 # Define additional parameters for the stimulus presentation 

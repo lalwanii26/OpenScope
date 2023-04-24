@@ -73,6 +73,7 @@ class Stimulus(EObject):
                  shuffle=False,
                  fps=60.0,
                  save_sweep_table=True,
+                 kframes=300,
                  ):
 
         self.stim = psychopy_stimulus
@@ -85,6 +86,7 @@ class Stimulus(EObject):
         self.runs = runs
         self.shuffle = shuffle
         self.fps = fps
+        self.kframes = kframes
         self.save_sweep_table = save_sweep_table
 
         self.stim_text = ""
@@ -132,14 +134,6 @@ class Stimulus(EObject):
         if self.shuffle:
             random.shuffle(self.sweep_order)
 
-        # print("sweep_order = ", self.sweep_order[:300])
-        # print("sweep_table = ", len(self.sweep_table))
-        # print("sweep_order = ", len(self.sweep_order))
-        # print("dimnames = ", self.dimnames)
-
-        ## What is sweep
-        ## sweep is 
-
     def _build_sweep_frames(self):
         """
         Build start/stop frame pairs.
@@ -166,17 +160,6 @@ class Stimulus(EObject):
         # start time
         seq.extend([-1]*int(self.fps*self.start_time))
 
-        # print("fps = ", self.fps)
-        # print("sweep_frames = ", len(self.sweep_frames))
-
-
-        # k = 300
-        # for i in range(len(self.sweep_frames)):
-        #     self.sweep_frames[i] = (i*k, (i+1)*k - 1)
-
-        # print("sweep_frames = ", self.sweep_frames)
-        # print("sweep_frames = ", len(self.sweep_frames))
-        # sweeps
         for index, sweep in enumerate(self.sweep_frames):
             seq.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))
             seq.extend([-1]*int(self.fps*self.blank_length))
@@ -187,13 +170,6 @@ class Stimulus(EObject):
             seq = seq[:stop_frame]
 
         self.frame_list = np.array(seq, dtype=np.int32)
-        # print("frame_list = ", self.frame_list)
-        # self.total_frames = len(self.frame_list)
-        # print("total_frames = ", self.total_frames)
-        # for i in range(k+1):
-            # print("frame_list[", i, "] = ", self.frame_list[i])
-
-        # self.sweep_frames = []
 
     def get_total_frames(self):
         """
@@ -378,11 +354,10 @@ class Stimulus(EObject):
 
         self._build_sweep_frames()
 
-        print("this code is running and it shouldn't be")
-        k = 300 ## Number of frames to show each contrast value
+        kframes = self.kframes ## Number of frames to show each contrast value
+        print("kframes = ", kframes)
         for i in range(len(self.sweep_frames)):
-            self.sweep_frames[i] = (i*k, (i+1)*k - 1)
-
+            self.sweep_frames[i] = (i*kframes, (i+1)*kframes - 1)
 
         for index, sweep in enumerate(self.sweep_frames):
             seq0.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))

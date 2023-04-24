@@ -66,6 +66,7 @@ sg = Stimulus(visual.GratingStim(window,
     runs=50,
     shuffle=False,
     save_sweep_table=True,
+    kframes = 1,
     )
 
 
@@ -88,8 +89,6 @@ params = {
     'syncsqrsize': (100,100),
     'showmouse': True
 }
-
-# W7DT12722
 
 # Create SweepStim instance
 ss = SweepStim(window,
