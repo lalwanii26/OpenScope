@@ -1,20 +1,17 @@
 """
 brain_observatory_stimulus.py
 """
-
-# import necessary libraries 
-from psychopy import visual
 from camstim import Stimulus, SweepStim
 from camstim import Foraging
 from camstim import Window, Warp
 import time
 import datetime
-
+import os
 from psychopy import monitors, visual
 
-# Define distance and width parameters for monitor
 dist = 15.0
-wid = 52.0
+# wid = 52.0
+wid = 32.0
 
 # create a monitor
 monitor = monitors.Monitor("testMonitor", distance=dist, width=wid) #"Gamma1.Luminance50"
@@ -24,54 +21,56 @@ window = Window(fullscr=True,
                 # monitor= 'Gamma1.Luminance50',          # MS 
                 monitor = monitor,
                 screen=1,
-                warp=Warp.Spherical,)
+                # warp=Warp.Spherical,
+                )
 
+# sg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\static_gratings.stim"
 
-# Define file paths for stimuli   
-fl250_path =	r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\flash_250ms.stim" #
-dg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\drifting_gratings.stim"
-sg_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\static_gratings.stim"
-ns_path = 		r"C:\Users\ITSloaner\Downloads\openscope-glo-stim-main\openscope-glo-stim-main\stim_files\natural_scenes.stim"
-
-
-# g20 = Stimulus.from_file(g20_path, window) 
-# fl250 = Stimulus.from_file(fl250_path, window) 
-
-# dg = Stimulus.from_file(dg_path, window) 
-# nm1 = Stimulus.from_file(nm1_path, window)
-# nm3 = Stimulus.from_file(nm3_path, window)
-
-# ns = Stimulus.from_file(ns_path, window)
-sg = Stimulus.from_file(sg_path, window)
-# nm1 = Stimulus.from_file(nm1_path, window)
-
-# RF mapping / flashes
-# g20_ds = [(0, 1200)]
-# fl250_ds = [(1200, 1500)]
-# fl250_ds = [(0, 1200)]
-# part1s = fl250_ds[0][1] # end of part 1
-
-
-# dg_ds = [(part1s+0, part1s+600),(part1s+1590, part1s+2190), (part1s+3120, part1s+3810)]
-# part2s = dg_ds[2][1] # end of part 2
-
-# nm3_ds = [(part1s+630, part1s+1230), (part1s+2490, part1s+3090)]
-# nm1_ds = [(part1s+1260, part1s+1560), (part2s+2310, part2s+2610) ]
-
-# ns_ds = [(part2s+510, part2s+990), (part2s+1290, part2s+1770), (part2s+2640, part2s+3180)]
 part2s  = 0
 sg_ds = [(part2s+0, part2s+480), (part2s+1800, part2s+2280), (part2s+3210, part2s+3750)]
 
+path = os.path.dirname(os.path.abspath(__file__))
 
-# g20.set_display_sequence(g20_ds)
-# fl250.set_display_sequence(fl250_ds)
-# dg.set_display_sequence(dg_ds)
-# nm3.set_display_sequence(nm3_ds)
-# nm1.set_display_sequence(nm1_ds)
-# ns.set_display_sequence(ns_ds)
+# with open(path + r"\TestSequenceBWN.txt") as f:
+with open(path + r"\TestSequenceRamp.txt") as f:
+    Color = f.readlines()
+    Color = [x.split(',') for x in Color]   
+    Color = [x for x in Color if len(x) > 1]
+    Color = [[y.strip() for y in x] for x in Color]
+    ## remove empty strings
+    Color = [[y for y in x if y] for x in Color]
+    ## convert to float
+    Color = [[float(y) for y in x] for x in Color]
 
-# load our stimuli from the file path
+sg = Stimulus(visual.GratingStim(window,
+                    pos=(0, 0),
+                    units='deg',
+                    size=(250, 250),
+                    mask="None",
+                    texRes=256,
+                    sf=0.1,
+                    ),
+    sweep_params={
+               'Contrast': ([1], 0),
+               'Color': (Color[0],1),
+               'SF': ([0.01], 2),
+               'Ori': ([0.0], 3),
+               'Phase': ([0], 4),
+               },
+
+
+    sweep_length=0.25,
+    start_time=0.0,
+    blank_length=0.0,
+    blank_sweeps=0,
+    runs=50,
+    shuffle=False,
+    save_sweep_table=True,
+    )
+
+
 sg.set_display_sequence(sg_ds)
+
 
 # kwargs
 params = {
@@ -94,10 +93,6 @@ params = {
 
 # Create SweepStim instance
 ss = SweepStim(window,
-            #    stimuli=[g20, fl250, dg, ns, sg],
-            #    stimuli=[g20, fl250, dg, ns, sg],
-                # stimuli=[fl250],
-            #    stimuli=[dg, ns, sg],
                stimuli=[sg],
                pre_blank_sec=0,
                post_blank_sec=0,

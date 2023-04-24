@@ -37,7 +37,7 @@ with open(path + r"\TestSequenceBWN.txt") as f:
     ## remove empty strings
     Color = [[y for y in x if y] for x in Color]
     ## convert to float
-    Color = [[int(y) for y in x] for x in Color]
+    Color = [[float(y) for y in x] for x in Color]
 
 # Create a stimulus using a grating with varying color sweeps 
 fl250 = Stimulus(visual.GratingStim(window,
