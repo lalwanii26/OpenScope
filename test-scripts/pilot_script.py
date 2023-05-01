@@ -64,11 +64,11 @@ print(len(Color))
 print("DurationFFF: ", DurationFFF, "min")
 print("DurationGR: ", DurationGR, "min")
 print("TotalScriptDuration: ", TotalScriptDuration, "min")
-# flash_time = 8*(2*len(UniqueStim)+ Nrepeats*len(RepeatStim))/(2*FPS)
+
 flash_time = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS)
-sg_time = 8*(NCOND*Nrepeats*len(RepeatStim))/(2*FPS)
-print("flash_time: ", flash_time, "s")
-print("sg_time: ", sg_time, "s")
+sg_time = (NCOND*Nrepeats*len(RepeatStim)/FPS)
+# print("flash_time: ", flash_time, "s")
+# print("sg_time: ", sg_time, "s")
 fl_ds = [(0, flash_time)] ##base script assumes 60fps
 # flash_time = 0
 sg_ds = [(flash_time+0, flash_time+sg_time)]  ## Get calclulate total time
