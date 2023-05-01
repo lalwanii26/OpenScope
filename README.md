@@ -21,7 +21,7 @@
 4. Download and install `AVbin` for your OS.
  
 ## Pilot script
-* Run the pilot_script.py under test_scripts folder to run Full Field Flicker and Static Grating
+* Run the pilot_script.py under test-scripts folder to run Full Field Flicker and Static Grating
 * It does not contain the drifting grating yet
 * Currently does not have Debug mode
 * Stimulus files are concatenated in this script 
