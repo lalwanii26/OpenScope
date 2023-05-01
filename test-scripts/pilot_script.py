@@ -1,6 +1,7 @@
 """
 pilot_script.py
 """
+
 ################# Parameters #################
 FPS = 30
 testmode = True
@@ -13,6 +14,7 @@ PHASES = [0, 90]
 DRIFTRATES = [12, 24]
 NCOND = len(SPATIALFREQ)*len(PHASES)*len(ORIENTATIONS)
 ##############################################
+
 # Import necessary libraries
 from psychopy import monitors, visual
 from camstim import Stimulus, SweepStim
@@ -20,6 +22,7 @@ from camstim import Window, Warp
 import os
 import time
 import numpy as np
+
 # read color information from comma separated file
 def read_file(path):
     with open(path) as f:
@@ -32,20 +35,24 @@ def read_file(path):
         # convert to float
         Color = [[float(y) for y in x] for x in Color]
         return Color[0]
+
 # Get path of current file
 path = os.path.dirname(os.path.abspath(__file__))
 # k_frames = int(screenHz/FPS)  ## 4 for 30 Hz
 # k_frames = 1  ## 4 for 30 Hz
+
 if testmode:
     Nrepeats = 1 # number of time the repeated sequences repeat
 else:
     Nrepeats = int(max([1, round(MAXRPT*SessionDuration/(120*TimeDilation))]))
+
 print("NCOND: ", NCOND)
 print("Nrepeats: ", Nrepeats)
 BaseUniqueStim =  read_file(path +  r"\UniqueStim1.txt")
 BaseRepeatStim =  read_file(path + r"\RepeatStim1.txt")
 BaseUniqueStim2 =  read_file(path + r"\UniqueStim2.txt")
 BaseRepeatStim2 =  read_file(path + r"\RepeatStim2.txt")
+
 # Apply time dilation to the vectors
 UniqueStim=[]
 UniqueStim2=[]
@@ -55,6 +62,7 @@ RepeatStim = np.repeat(BaseRepeatStim, TimeDilation).tolist()
 RepeatStim2 = np.repeat(BaseRepeatStim2, TimeDilation).tolist()
 UniqueStim = np.repeat(BaseUniqueStim, TimeDilation).tolist()
 UniqueStim2 = np.repeat(BaseUniqueStim2, TimeDilation).tolist()
+
 # Calculate duration of each stimulus
 DurationFFF = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS) /60
 DurationGR =  (NCOND*Nrepeats*len(RepeatStim)/FPS) /60
@@ -72,11 +80,14 @@ sg_time = (NCOND*Nrepeats*len(RepeatStim)/FPS)
 fl_ds = [(0, flash_time)] ##base script assumes 60fps
 # flash_time = 0
 sg_ds = [(flash_time+0, flash_time+sg_time)]  ## Get calclulate total time
+
 # Define monitor parameters
 dist = 15.0
 wid = 52.0
+
 # # create a monitor
 monitor = monitors.Monitor("testMonitor", distance=dist, width=wid) #"Gamma1.Luminance50"
+
 # Create display window
 window = Window(fullscr=True,
                 # monitor= 'Gamma1.Luminance50',          # MS
@@ -84,6 +95,7 @@ window = Window(fullscr=True,
                 screen=1,
                 # warp=Warp.Spherical,
 )
+
 # load FF stimuli
 # FFF implemented as a grating with fixed sf=0, ori=0, and ph=0
 # contrast is updated every video frame according to the loaded stimulus sequence
@@ -112,7 +124,9 @@ fl = Stimulus(visual.GratingStim(window,
     save_sweep_table=False,
     kframes = 1,
     )
+
 Color = np.repeat(BaseRepeatStim, TimeDilation).tolist()
+
 # Standing (static) Grating with fixed sf, ori, and ph
 # contrast is updated every video frame according to the loaded stimulus sequence
 sg = Stimulus(visual.GratingStim(window,
@@ -145,10 +159,12 @@ sg = Stimulus(visual.GratingStim(window,
     save_sweep_table=False,
     kframes = 1,
     )
+
 # ghg
 # Define display sequence
 fl.set_display_sequence(fl_ds)
 sg.set_display_sequence(sg_ds)
+
 # kwargs
 # Set keyword argumets for SweepStim instance
 params = {
@@ -166,6 +182,7 @@ params = {
     'syncsqrsize': (100,100),
     'showmouse': True
 }
+
 # Create SweepStim instance
 ss = SweepStim(window,
                stimuli=[fl,sg],
@@ -173,6 +190,7 @@ ss = SweepStim(window,
                post_blank_sec=0,
                params=params,
                )
+
 # Run the SweepStim instance
 t = time.localtime()
 ss.run()
