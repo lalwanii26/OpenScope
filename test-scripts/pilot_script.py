@@ -23,18 +23,18 @@ import os
 import time
 import numpy as np
 
-# read color information from comma separated file
+# read Contrast information from comma separated file
 def read_file(path):
     with open(path) as f:
-        Color = f.readlines()
-        Color = [x.split(',') for x in Color]
-        Color = [x for x in Color if len(x) > 1]
-        Color = [[y.strip() for y in x] for x in Color]
+        Contrast = f.readlines()
+        Contrast = [x.split(',') for x in Contrast]
+        Contrast = [x for x in Contrast if len(x) > 1]
+        Contrast = [[y.strip() for y in x] for x in Contrast]
         # remove empty strings
-        Color = [[y for y in x if y] for x in Color]
+        Contrast = [[y for y in x if y] for x in Contrast]
         # convert to float
-        Color = [[float(y) for y in x] for x in Color]
-        return Color[0]
+        Contrast = [[float(y) for y in x] for x in Contrast]
+        return Contrast[0]
 
 # Get path of current file
 path = os.path.dirname(os.path.abspath(__file__))
@@ -67,8 +67,8 @@ UniqueStim2 = np.repeat(BaseUniqueStim2, TimeDilation).tolist()
 DurationFFF = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS) /60
 DurationGR =  (NCOND*Nrepeats*len(RepeatStim)/FPS) /60
 TotalScriptDuration=2*(DurationFFF+DurationGR) #in minutes
-Color = UniqueStim + Nrepeats*RepeatStim + UniqueStim2 + Nrepeats*RepeatStim2
-print(len(Color))
+Contrast = UniqueStim + Nrepeats*RepeatStim + UniqueStim2 + Nrepeats*RepeatStim2
+print(len(Contrast))
 print("DurationFFF: ", DurationFFF, "min")
 print("DurationGR: ", DurationGR, "min")
 print("TotalScriptDuration: ", TotalScriptDuration, "min")
@@ -111,9 +111,9 @@ fl = Stimulus(visual.GratingStim(window,
     # that will be swept or varied over time during the presentation of the stimulus
     sweep_params={
                 # wokrs similarly like for loops
-                # for a fixed contrast value, color is updated every video frame
+                # for a fixed contrast value, Contrast is updated every video frame
                'Contrast': ([1], 0),
-               'Color':(Color, 1)
+               'Color':(Contrast, 1)
                },
     sweep_length=1, ## unused
     start_time=0.0,
@@ -125,7 +125,7 @@ fl = Stimulus(visual.GratingStim(window,
     kframes = 1,
     )
 
-Color = np.repeat(BaseRepeatStim, TimeDilation).tolist()
+Contrast = np.repeat(BaseRepeatStim, TimeDilation).tolist()
 
 # Standing (static) Grating with fixed sf, ori, and ph
 # contrast is updated every video frame according to the loaded stimulus sequence
@@ -141,12 +141,12 @@ sg = Stimulus(visual.GratingStim(window,
     # that will be swept or varied over time during the presentation of the stimulus
     sweep_params={
                 # wokrs similarly like for loops
-                # for a fixed contrast value, color is updated every video frame
+                # for a fixed contrast value, Contrast is updated every video frame
                'Contrast': ([1], 0),
                'SF': (SPATIALFREQ, 1),
                'Ori': (ORIENTATIONS, 2),
                'Phase': (PHASES, 3),
-               'Color': (Color,4),
+               'Color': (Contrast, 4),
                },
     sweep_length=0.25,
     start_time=0.0,
