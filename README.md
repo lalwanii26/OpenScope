@@ -22,7 +22,6 @@
  
 ## Pilot script
 * Run the pilot_script.py under test-scripts folder to run Full Field Flicker and Static Grating
-* It does not contain the drifting grating yet - we are still working on it, can be found at test-scripts/drifting_grating.py
-* Currently does not have Debug mode
+* Currently it does not have Debug mode
 * Stimulus files are concatenated in this script 
-
+* It does not contain the drifting grating yet - we are still working on it, can be found at test-scripts/drifting_grating.py
