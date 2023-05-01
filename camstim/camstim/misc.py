@@ -206,7 +206,7 @@ def buildSweepTable(sweep, runs=1, blanksweeps=0):
     sweeptable = list(itertools.product(*dimlist))  # get full ordered table
     sweeporder = range(sweepcount)
 
-    print("sweeporder", sweeporder)
+    #print("sweeporder", sweeporder)
 
     # Add blank sweeps
     if blanksweeps is not 0:

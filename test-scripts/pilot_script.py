@@ -3,8 +3,8 @@ pilot_script.py
 """
 ################# Parameters #################
 FPS = 30
-testmode=True
-SessionDuration=120
+testmode = True
+SessionDuration = 120
 TimeDilation = 1
 MAXRPT = 32
 SPATIALFREQ = [0.02, 0.04, 0.08]
