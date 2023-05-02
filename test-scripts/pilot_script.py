@@ -122,7 +122,6 @@ fl = Stimulus(visual.GratingStim(window,
     runs = 1,
     shuffle=False,
     save_sweep_table=False,
-    kframes = 1,
     )
 
 Contrast = np.repeat(BaseRepeatStim, TimeDilation).tolist()
@@ -157,7 +156,6 @@ sg = Stimulus(visual.GratingStim(window,
     shuffle=False,
     # fps = 30,
     save_sweep_table=False,
-    kframes = 1,
     )
 
 # ghg
