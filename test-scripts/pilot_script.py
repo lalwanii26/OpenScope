@@ -137,6 +137,7 @@ Contrast = np.repeat(BaseRepeatStim, TimeDilation).tolist()
 sg = Stimulus(visual.GratingStim(window,
                     pos=(0, 0),
                     units='deg',
+                    tex="sqr",
                     size=(250, 250),
                     mask="None",
                     texRes=256,
