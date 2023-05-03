@@ -77,7 +77,7 @@ flash_time = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS)
 sg_time = (NCOND*Nrepeats*len(RepeatStim)/FPS)
 # print("flash_time: ", flash_time, "s")
 # print("sg_time: ", sg_time, "s")
-fl_ds = [(0, flash_time)] ##base script assumes 60fps
+fl_ds = [(0, flash_time)] 
 # flash_time = 0
 sg_ds = [(flash_time+0, flash_time+sg_time)]  ## Get calclulate total time
 
@@ -115,14 +115,13 @@ fl = Stimulus(visual.GratingStim(window,
                'Contrast': ([1], 0),
                'Color':(Contrast, 1)
                },
-    sweep_length=1, ## unused
+    sweep_length=1.0/30, ## unused
     start_time=0.0,
     blank_length=0,
     blank_sweeps=0,
     runs = 1,
     shuffle=False,
     save_sweep_table=False,
-    kframes = 1,
     )
 
 Contrast = np.repeat(BaseRepeatStim, TimeDilation).tolist()
@@ -148,16 +147,13 @@ sg = Stimulus(visual.GratingStim(window,
                'Phase': (PHASES, 3),
                'Color': (Contrast, 4),
                },
-    sweep_length=0.25,
+    sweep_length=1.0/30,
     start_time=0.0,
     blank_length=0.0,
     blank_sweeps=0,
-    # the number of times the entire stimulus sequence will be repeated
     runs=1,
     shuffle=False,
-    # fps = 30,
     save_sweep_table=False,
-    kframes = 1,
     )
 
 # ghg

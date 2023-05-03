@@ -73,7 +73,6 @@ class Stimulus(EObject):
                  shuffle=False,
                  fps=60.0,
                  save_sweep_table=True,
-                 kframes=300,
                  ):
 
         self.stim = psychopy_stimulus
@@ -86,7 +85,6 @@ class Stimulus(EObject):
         self.runs = runs
         self.shuffle = shuffle
         self.fps = fps
-        self.kframes = kframes
         self.save_sweep_table = save_sweep_table
 
         self.stim_text = ""
@@ -160,6 +158,7 @@ class Stimulus(EObject):
         # start time
         seq.extend([-1]*int(self.fps*self.start_time))
 
+        # sweeps
         for index, sweep in enumerate(self.sweep_frames):
             seq.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))
             seq.extend([-1]*int(self.fps*self.blank_length))
@@ -170,6 +169,7 @@ class Stimulus(EObject):
             seq = seq[:stop_frame]
 
         self.frame_list = np.array(seq, dtype=np.int32)
+        self.total_frames = len(self.frame_list)
 
     def get_total_frames(self):
         """
@@ -353,11 +353,6 @@ class Stimulus(EObject):
         seq0 = []
 
         self._build_sweep_frames()
-
-        kframes = self.kframes ## Number of frames to show each contrast value
-        print("kframes = ", kframes)
-        for i in range(len(self.sweep_frames)):
-            self.sweep_frames[i] = (i*kframes, (i+1)*kframes - 1)
 
         for index, sweep in enumerate(self.sweep_frames):
             seq0.extend([self.sweep_order[index]]*(int(sweep[1]-sweep[0]+1)))
@@ -630,8 +625,6 @@ class NaturalScenes(Stimulus):
         Overwrites the stimulus `_build_sweep_table` method.
         """
         self.sweep_table, self.sweep_order, self.dimnames = [], range(len(self.stim)), []
-        print("len of sweep order", len(self.sweep_order))
-        print("sweep order", self.sweep_order)
         if self.blank_sweeps is not 0:
             segments = [self.sweep_order[i:i+self.blank_sweeps] for i in range(0, len(self.sweep_order), self.blank_sweeps)]
             self.sweep_order = []
@@ -640,9 +633,6 @@ class NaturalScenes(Stimulus):
                     self.sweep_order.append(y)
                 if len(x) == self.blank_sweeps:
                     self.sweep_order.append(-1)
-
-        print("len of sweep order", len(self.sweep_order))
-        print("sweep order", self.sweep_order)
         self.sweep_order *= self.runs
 
         if self.shuffle:
