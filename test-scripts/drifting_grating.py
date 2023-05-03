@@ -15,6 +15,26 @@ DRIFTRATES = [12, 24]
 NCOND = len(SPATIALFREQ)*len(PHASES)*len(ORIENTATIONS)
 ##############################################
 
+# PART 3 DRIFTING GRATINGS
+# Loop over grating parameters and then within parameter condition,
+# modulate contrast according to values in stimulus, one per video frame
+# where -1 encodes changing the grating phase by -dr degrees, and +1
+# encodes changing the phase by +dr degrees, compared to the phase of
+# previous video frame. At 30fps dr=12 corresponds to 1Hz temporal
+# frequency drift if it were shifting in a constant direction
+# Thus instead of saving the contrast of each frame to the data file, we
+# should save the spatial phase of each frame
+
+# The following line of code starts from ph=0 and *changes* the
+# phase by RepeatStim(t)*dr every video frame; the MATLAB
+# function wrapTo360 then maps values below 0 or above 360
+# degrees to their equivalent in the 360 degree circle.
+# ph=wrapTo360(cumsum(RepeatStim*dr));
+
+def wrapTo360(x):
+    return np.mod(x, 360)
+
+
 # Import necessary libraries
 from psychopy import monitors, visual
 from camstim import Stimulus, SweepStim
@@ -26,7 +46,7 @@ import numpy as np
 # read Contrast information from comma separated file
 path = os.path.dirname(os.path.abspath(__file__))
 
-with open(path + r"\TestSequenceOnes.txt") as f:
+with open(path + r"\RepeatStim1.txt") as f:
     Phase = f.readlines()
     Phase = [x.split(',') for x in Phase]   
     Phase = [x for x in Phase if len(x) > 1]
@@ -35,6 +55,19 @@ with open(path + r"\TestSequenceOnes.txt") as f:
     Phase = [[y for y in x if y] for x in Phase]
     ## convert to float
     Phase = [[float(y) for y in x] for x in Phase]
+    Phase = Phase[0]
+
+
+### convert phase according to drift rate and warp to 360 degrees
+
+phase = 0
+for i in range(len(Phase)):
+    phase += Phase[i]*DRIFTRATES[0]
+    Phase[i] = wrapTo360(phase)
+Phase = [x/360 for x in Phase]
+
+print(Phase)
+
 
 # Get path of current file
 path = os.path.dirname(os.path.abspath(__file__))
@@ -65,20 +98,21 @@ dg = Stimulus(visual.GratingStim(window,
                     sf=0.1,
                     ),
     sweep_params={
-               'Contrast': ([10], 0),
-               'SF': (SPATIALFREQ, 1),
-               'Ori': (ORIENTATIONS, 2),
-               'Phase': (Phase[0], 3),
-               'TF': ([1], 4),
+               'Contrast': ([1], 0),
+               'SF': ([0.02], 1),
+               'Ori': ([0], 2),
+            #    'Phase': (Phase, 3),
+                'Phase': (Phase, 3),
+            #    'TF': ([1], 4),
     },
-    sweep_length=2.0,
+    sweep_length=0.1,
     start_time=0.0,
     blank_length=0,
     blank_sweeps=0,
     runs=1,
     shuffle=False,
     save_sweep_table=True,
-    kframes = 1
+    kframes=4,
     )
 
 # Define rhe display sequence for the stimulus 

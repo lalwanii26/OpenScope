@@ -5,7 +5,7 @@ pilot_script.py
 ################# Parameters #################
 FPS = 30
 testmode = True
-SessionDuration = 120
+SessionDuration = 120 ## not used if testmode is True
 TimeDilation = 1
 MAXRPT = 32
 SPATIALFREQ = [0.02, 0.04, 0.08]
@@ -13,7 +13,12 @@ ORIENTATIONS = [0, 90]
 PHASES = [0, 90]
 DRIFTRATES = [12, 24]
 NCOND = len(SPATIALFREQ)*len(PHASES)*len(ORIENTATIONS)
+DRIFT_NCOND = len(SPATIALFREQ)*len(ORIENTATIONS)*len(DRIFTRATES)
 ##############################################
+
+# Define monitor parameters
+dist = 15.0
+wid = 52.0
 
 # Import necessary libraries
 from psychopy import monitors, visual
@@ -22,6 +27,14 @@ from camstim import Window, Warp
 import os
 import time
 import numpy as np
+
+def drift2Phase(Phase, drift):
+    phase = 0
+    for i in range(len(Phase)):
+        phase += Phase[i]*drift
+        Phase[i] = np.mod(phase, 360)
+    Phase = [x/360 for x in Phase]
+    return Phase
 
 # read Contrast information from comma separated file
 def read_file(path):
@@ -32,14 +45,11 @@ def read_file(path):
         Contrast = [[y.strip() for y in x] for x in Contrast]
         # remove empty strings
         Contrast = [[y for y in x if y] for x in Contrast]
-        # convert to float
         Contrast = [[float(y) for y in x] for x in Contrast]
         return Contrast[0]
 
 # Get path of current file
 path = os.path.dirname(os.path.abspath(__file__))
-# k_frames = int(screenHz/FPS)  ## 4 for 30 Hz
-# k_frames = 1  ## 4 for 30 Hz
 
 if testmode:
     Nrepeats = 1 # number of time the repeated sequences repeat
@@ -47,17 +57,16 @@ else:
     Nrepeats = int(max([1, round(MAXRPT*SessionDuration/(120*TimeDilation))]))
 
 print("NCOND: ", NCOND)
+print("DRIFT_NCOND: ", DRIFT_NCOND)
 print("Nrepeats: ", Nrepeats)
+
 BaseUniqueStim =  read_file(path +  r"\UniqueStim1.txt")
 BaseRepeatStim =  read_file(path + r"\RepeatStim1.txt")
 BaseUniqueStim2 =  read_file(path + r"\UniqueStim2.txt")
 BaseRepeatStim2 =  read_file(path + r"\RepeatStim2.txt")
 
-# Apply time dilation to the vectors
-UniqueStim=[]
-UniqueStim2=[]
-RepeatStim=[]
-RepeatStim2=[]
+UniqueStim, UniqueStim2, RepeatStim, RepeatStim2 = [], [], [], []
+
 RepeatStim = np.repeat(BaseRepeatStim, TimeDilation).tolist()
 RepeatStim2 = np.repeat(BaseRepeatStim2, TimeDilation).tolist()
 UniqueStim = np.repeat(BaseUniqueStim, TimeDilation).tolist()
@@ -67,23 +76,20 @@ UniqueStim2 = np.repeat(BaseUniqueStim2, TimeDilation).tolist()
 DurationFFF = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS) /60
 DurationGR =  (NCOND*Nrepeats*len(RepeatStim)/FPS) /60
 TotalScriptDuration=2*(DurationFFF+DurationGR) #in minutes
+
 Contrast = UniqueStim + Nrepeats*RepeatStim + UniqueStim2 + Nrepeats*RepeatStim2
-print(len(Contrast))
+
 print("DurationFFF: ", DurationFFF, "min")
 print("DurationGR: ", DurationGR, "min")
 print("TotalScriptDuration: ", TotalScriptDuration, "min")
 
 flash_time = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS)
 sg_time = (NCOND*Nrepeats*len(RepeatStim)/FPS)
-# print("flash_time: ", flash_time, "s")
-# print("sg_time: ", sg_time, "s")
-fl_ds = [(0, flash_time)] 
-# flash_time = 0
-sg_ds = [(flash_time+0, flash_time+sg_time)]  ## Get calclulate total time
+dg_time = (DRIFT_NCOND*Nrepeats*len(RepeatStim)/FPS)
 
-# Define monitor parameters
-dist = 15.0
-wid = 52.0
+fl_ds = [(0, flash_time)] 
+sg_ds = [(flash_time+0, flash_time+sg_time)]  ## Get calclulate total time
+dg_ds = [(flash_time+sg_time+0, flash_time+sg_time+dg_time)]  ## Get calclulate total time
 
 # # create a monitor
 monitor = monitors.Monitor("testMonitor", distance=dist, width=wid) #"Gamma1.Luminance50"
@@ -115,7 +121,7 @@ fl = Stimulus(visual.GratingStim(window,
                'Contrast': ([1], 0),
                'Color':(Contrast, 1)
                },
-    sweep_length=1.0/30, ## unused
+    sweep_length=1.0/FPS,
     start_time=0.0,
     blank_length=0,
     blank_sweeps=0,
@@ -147,7 +153,7 @@ sg = Stimulus(visual.GratingStim(window,
                'Phase': (PHASES, 3),
                'Color': (Contrast, 4),
                },
-    sweep_length=1.0/30,
+    sweep_length=1.0/FPS,
     start_time=0.0,
     blank_length=0.0,
     blank_sweeps=0,
@@ -156,10 +162,42 @@ sg = Stimulus(visual.GratingStim(window,
     save_sweep_table=False,
     )
 
-# ghg
+
+Phase = np.repeat(BaseRepeatStim, TimeDilation).tolist()
+phases = []
+for drift in DRIFTRATES:
+    phases += drift2Phase(Phase, drift)
+
+
+dg = Stimulus(visual.GratingStim(window,
+                    pos=(0, 0),
+                    units='deg',
+                    tex="sqr",
+                    size=(250, 250),
+                    mask="None",
+                    texRes=256,
+                    sf=0.1,
+                    ),
+    sweep_params={
+               'Contrast': ([1], 0),
+               'SF': (SPATIALFREQ, 1),
+               'Ori': (ORIENTATIONS, 2),
+                'Phase': (phases, 3),
+    },
+    sweep_length=1.0/FPS,
+    start_time=0.0,
+    blank_length=0,
+    blank_sweeps=0,
+    runs=1,
+    shuffle=False,
+    save_sweep_table=True,
+    )
+
+
 # Define display sequence
 fl.set_display_sequence(fl_ds)
 sg.set_display_sequence(sg_ds)
+dg.set_display_sequence(dg_ds)
 
 # kwargs
 # Set keyword argumets for SweepStim instance
@@ -181,7 +219,7 @@ params = {
 
 # Create SweepStim instance
 ss = SweepStim(window,
-               stimuli=[fl,sg],
+               stimuli=[fl, sg, dg],
                pre_blank_sec=0,
                post_blank_sec=0,
                params=params,
