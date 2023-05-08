@@ -122,7 +122,7 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
         all_stim.append(fl)
 
     if ADD_STATIC:
-        Contrast = RepeatStim 
+        Contrast = RepeatStim2 
 
         sg_ds = [(current_start_time, current_start_time+sg_time)]  ## calculate total time
 
