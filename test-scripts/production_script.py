@@ -43,6 +43,9 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
     DRIFTRATES = [12, 24]
     NCOND = len(SPATIALFREQ)*len(PHASES)*len(ORIENTATIONS)
     DRIFT_NCOND = len(SPATIALFREQ)*len(ORIENTATIONS)*len(DRIFTRATES)
+    ADD_FLASHES = True
+    ADD_STATIC = True
+    ADD_DRIFT = True
     ##############################################
 
     if testmode:
@@ -78,107 +81,123 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
     flash_time = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS)
     sg_time = (NCOND*Nrepeats*len(RepeatStim)/FPS)
     dg_time = (DRIFT_NCOND*Nrepeats*len(RepeatStim)/FPS)
+    current_start_time = 0
 
-    fl_ds = [(0, flash_time)] 
-    sg_ds = [(flash_time+0, flash_time+sg_time)]  ## Get calclulate total time
-    dg_ds = [(flash_time+sg_time+0, flash_time+sg_time+dg_time)]  ## Get calclulate total time
+    all_stim = []
 
-    # load FF stimuli
-    # FFF implemented as a grating with fixed sf=0, ori=0, and ph=0
-    # contrast is updated every video frame according to the loaded stimulus sequence
-    fl = Stimulus(visual.GratingStim(window,
-                        pos=(0, 0),
-                        units='deg',
-                        size=(300, 300),
-                        mask="None",
-                        texRes=256,
-                        sf=0,
-                        ),
-        # a dictionary that specifies the parameter values
-        # that will be swept or varied over time during the presentation of the stimulus
-        sweep_params={
-                    # wokrs similarly like for loops
-                    # for a fixed contrast value, Contrast is updated every video frame
-                'Contrast': ([1], 0),
-                'Color':(Contrast, 1)
-                },
-        sweep_length=1.0/FPS,
-        start_time=0.0,
-        blank_length=0,
-        blank_sweeps=0,
-        runs = 1,
-        shuffle=False,
-        save_sweep_table=False,
-        )
+    if ADD_FLASHES:
+        fl_ds = [(current_start_time, current_start_time+flash_time)] 
 
-    Contrast = RepeatStim 
+        # load FF stimuli
+        # FFF implemented as a grating with fixed sf=0, ori=0, and ph=0
+        # contrast is updated every video frame according to the loaded stimulus sequence
+        fl = Stimulus(visual.GratingStim(window,
+                            pos=(0, 0),
+                            units='deg',
+                            size=(300, 300),
+                            mask="None",
+                            texRes=256,
+                            sf=0,
+                            ),
+            # a dictionary that specifies the parameter values
+            # that will be swept or varied over time during the presentation of the stimulus
+            sweep_params={
+                        # wokrs similarly like for loops
+                        # for a fixed contrast value, Contrast is updated every video frame
+                    'Contrast': ([1], 0),
+                    'Color':(Contrast, 1)
+                    },
+            sweep_length=1.0/FPS,
+            start_time=0.0,
+            blank_length=0,
+            blank_sweeps=0,
+            runs = 1,
+            shuffle=False,
+            save_sweep_table=False,
+            )
+        fl.set_display_sequence(fl_ds)
 
-    # Standing (static) Grating with fixed sf, ori, and ph
-    # contrast is updated every video frame according to the loaded stimulus sequence
-    sg = Stimulus(visual.GratingStim(window,
-                        pos=(0, 0),
-                        units='deg',
-                        tex="sqr",
-                        size=(250, 250),
-                        mask="None",
-                        texRes=256,
-                        sf=0.1,
-                        ),
-        # a dictionary that specifies the parameter values
-        # that will be swept or varied over time during the presentation of the stimulus
-        sweep_params={
-                    # wokrs similarly like for loops
-                    # for a fixed contrast value, Contrast is updated every video frame
-                'Contrast': ([1], 0),
-                'SF': (SPATIALFREQ, 1),
-                'Ori': (ORIENTATIONS, 2),
-                'Phase': (PHASES, 3),
-                'Color': (Contrast, 4),
-                },
-        sweep_length=1.0/FPS,
-        start_time=0.0,
-        blank_length=0.0,
-        blank_sweeps=0,
-        runs=1,
-        shuffle=False,
-        save_sweep_table=False,
-        )
+        current_start_time = current_start_time+flash_time
 
-    Phase = RepeatStim 
-    phases = []
-    for drift in DRIFTRATES:
-        phases += drift2Phase(Phase, drift)
+        all_stim.append(fl)
 
-    dg = Stimulus(visual.GratingStim(window,
-                        pos=(0, 0),
-                        units='deg',
-                        tex="sqr",
-                        size=(250, 250),
-                        mask="None",
-                        texRes=256,
-                        sf=0.1,
-                        ),
-        sweep_params={
-                'Contrast': ([1], 0),
-                'SF': (SPATIALFREQ, 1),
-                'Ori': (ORIENTATIONS, 2),
+    if ADD_STATIC:
+        Contrast = RepeatStim 
+
+        sg_ds = [(current_start_time, current_start_time+sg_time)]  ## calculate total time
+
+        # Standing (static) Grating with fixed sf, ori, and ph
+        # contrast is updated every video frame according to the loaded stimulus sequence
+        sg = Stimulus(visual.GratingStim(window,
+                            pos=(0, 0),
+                            units='deg',
+                            tex="sqr",
+                            size=(250, 250),
+                            mask="None",
+                            texRes=256,
+                            sf=0.1,
+                            ),
+            # a dictionary that specifies the parameter values
+            # that will be swept or varied over time during the presentation of the stimulus
+            sweep_params={
+                        # wokrs similarly like for loops
+                        # for a fixed contrast value, Contrast is updated every video frame
+                    'SF': (SPATIALFREQ, 0),
+                    'Ori': (ORIENTATIONS, 1),
+                    'Phase': (PHASES, 2),
+                    'Contrast': (Contrast, 3),
+                    },
+            sweep_length=1.0/FPS,
+            start_time=0.0,
+            blank_length=0.0,
+            blank_sweeps=0,
+            runs=1,
+            shuffle=False,
+            save_sweep_table=False,
+            )
+        sg.set_display_sequence(sg_ds)
+
+        current_start_time = current_start_time+sg_time
+
+        all_stim.append(sg)
+
+    if ADD_DRIFT:
+        Phase = RepeatStim 
+
+        dg_ds = [(current_start_time, current_start_time+dg_time)]  ## calculate total time
+
+        phases = []
+        for drift in DRIFTRATES:
+            phases += drift2Phase(Phase, drift)
+
+        dg = Stimulus(visual.GratingStim(window,
+                            pos=(0, 0),
+                            units='deg',
+                            tex="sqr",
+                            size=(250, 250),
+                            mask="None",
+                            texRes=256,
+                            sf=0.1,
+                            ),
+            sweep_params={
+                    'Contrast': ([1], 0),
+                    'SF': (SPATIALFREQ, 1),
+                    'Ori': (ORIENTATIONS, 2),
                     'Phase': (phases, 3),
-        },
-        sweep_length=1.0/FPS,
-        start_time=0.0,
-        blank_length=0,
-        blank_sweeps=0,
-        runs=1,
-        shuffle=False,
-        save_sweep_table=True,
-        )
+            },
+            sweep_length=1.0/FPS,
+            start_time=0.0,
+            blank_length=0,
+            blank_sweeps=0,
+            runs=1,
+            shuffle=False,
+            save_sweep_table=True,
+            )
+        dg.set_display_sequence(dg_ds)
 
-    # Define display sequence
-    fl.set_display_sequence(fl_ds)
-    sg.set_display_sequence(sg_ds)
-    dg.set_display_sequence(dg_ds)
+        all_stim.append(dg)
 
-    return [fl, sg, dg]
+    return all_stim
 
 
 if __name__ == "__main__":
