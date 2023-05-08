@@ -64,8 +64,6 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
     RepeatStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                               "RepeatStim2.txt"))
 
-    UniqueStim, UniqueStim2, RepeatStim, RepeatStim2 = [], [], [], []
-
     # Calculate duration of each stimulus
     DurationFFF = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS) /60
     DurationGR =  (NCOND*Nrepeats*len(RepeatStim)/FPS) /60
