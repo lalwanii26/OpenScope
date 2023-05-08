@@ -36,7 +36,6 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
     FPS = 30
     testmode = True
     SessionDuration = 120 ## not used if testmode is True
-    TimeDilation = 1
     MAXRPT = 32
     SPATIALFREQ = [0.02, 0.04, 0.08]
     ORIENTATIONS = [0, 90]
@@ -49,29 +48,23 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
     if testmode:
         Nrepeats = 1 # number of time the repeated sequences repeat
     else:
-        Nrepeats = int(max([1, round(MAXRPT*SessionDuration/(120*TimeDilation))]))
+        Nrepeats = int(max([1, round(MAXRPT*SessionDuration/(120))]))
 
     logging.info("NCOND: %d", NCOND)
     logging.info("DRIFT_NCOND: %d", DRIFT_NCOND)
     logging.info("Nrepeats: %d", Nrepeats)
 
     # Read in the stimulus sequence
-    BaseUniqueStim =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    UniqueStim =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                              "UniqueStim1.txt"))
-    BaseRepeatStim =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    RepeatStim =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                              "RepeatStim1.txt"))
-    BaseUniqueStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    UniqueStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                               "UniqueStim2.txt"))
-    BaseRepeatStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    RepeatStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                               "RepeatStim2.txt"))
 
-
     UniqueStim, UniqueStim2, RepeatStim, RepeatStim2 = [], [], [], []
-
-    RepeatStim = np.repeat(BaseRepeatStim, TimeDilation).tolist()
-    RepeatStim2 = np.repeat(BaseRepeatStim2, TimeDilation).tolist()
-    UniqueStim = np.repeat(BaseUniqueStim, TimeDilation).tolist()
-    UniqueStim2 = np.repeat(BaseUniqueStim2, TimeDilation).tolist()
 
     # Calculate duration of each stimulus
     DurationFFF = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS) /60
@@ -120,7 +113,7 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
         save_sweep_table=False,
         )
 
-    Contrast = np.repeat(BaseRepeatStim, TimeDilation).tolist()
+    Contrast = RepeatStim 
 
     # Standing (static) Grating with fixed sf, ori, and ph
     # contrast is updated every video frame according to the loaded stimulus sequence
@@ -153,7 +146,7 @@ def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
         save_sweep_table=False,
         )
 
-    Phase = np.repeat(BaseRepeatStim, TimeDilation).tolist()
+    Phase = RepeatStim 
     phases = []
     for drift in DRIFTRATES:
         phases += drift2Phase(Phase, drift)
