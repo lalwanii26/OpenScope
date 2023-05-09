@@ -30,173 +30,242 @@ def read_file(path):
         Contrast = [[float(y) for y in x] for x in Contrast]
         return Contrast[0]
 
+def create_flashes(list_of_contrasts, window, n_repeats, frame_rate, current_start_time):
+    """Create flash stimulus series implemented as a grating with fixed 
+    sf=0, ori=0, and ph=0. contrast is updated every video frame according to 
+    the loaded stimulus sequence.
+        args:
+            list_of_contrasts: list of contrasts to be presented
+            window: window object
+            n_repeats: number of repeats of the stimulus sequence
+            frame_rate: frame rate of the monitor
+            current_start_time: current start time of the stimulus
+        returns:
+            stimulus_obj: CamStim Stimulus object
+            end_stim: updated current start time of the next stimulus
+    """
+    stimulus_obj = Stimulus(visual.GratingStim(window,
+                        pos=(0, 0),
+                        units='deg',
+                        size=(300, 300),
+                        mask="None",
+                        texRes=256,
+                        sf=0,
+                        ),
+        # a dictionary that specifies the parameter values
+        # that will be swept or varied over time during the presentation of the stimulus
+        sweep_params={
+                    # works similarly like for loops
+                    # for a fixed contrast value, Contrast is updated every video frame
+                'Contrast': ([1], 0),
+                'Color':(list_of_contrasts, 1)
+                },
+        sweep_length=1.0/frame_rate,
+        start_time=0.0,
+        blank_length=0,
+        blank_sweeps=0,
+        runs = n_repeats,
+        shuffle=False,
+        save_sweep_table=True,
+        )
+    
+    # For flashes, the duration of the stimulus is the number of unique stimuli 
+    # divided by the frame rate
+    duration_stim = len(list_of_contrasts)/frame_rate 
+    end_stim = current_start_time+duration_stim
+    
+    stimulus_obj.set_display_sequence([(current_start_time, end_stim)])
+
+    return stimulus_obj, end_stim
+
+def create_static(list_of_contrasts, window, n_repeats, frame_rate, current_start_time,
+                  list_of_spatialfreq, list_of_orientations, list_of_phases):
+    """Create static grating stimulus series.
+        args:
+            list_of_contrasts: list of contrasts to be presented
+            window: window object
+            n_repeats: number of repeats of the stimulus sequence
+            frame_rate: frame rate of the monitor
+            current_start_time: current start time of the stimulus
+            list_of_spatialfreq: list of spatial frequencies to be presented
+            list_of_orientations: list of orientations to be presented
+            list_of_phases: list of phases to be presented
+        returns:
+            stimulus_obj: CamStim Stimulus object
+            end_stim: updated current start time of the next stimulus
+    """
+
+    # Standing (static) Grating with fixed sf, ori, and ph
+    # contrast is updated every video frame according to the loaded stimulus sequence
+    stimulus_obj = Stimulus(visual.GratingStim(window,
+                        pos=(0, 0),
+                        units='deg',
+                        tex="sin",
+                        size=(250, 250),
+                        mask="None",
+                        texRes=256,
+                        sf=0.1,
+                        ),
+        # a dictionary that specifies the parameter values
+        # that will be swept or varied over time during the presentation of the stimulus
+        sweep_params={
+                    # wokrs similarly like for loops
+                    # for a fixed contrast value, Contrast is updated every video frame
+                'SF': (list_of_spatialfreq, 0),
+                'Ori': (list_of_orientations, 1),
+                'Phase': (list_of_phases, 2),
+                'Contrast': (list_of_contrasts, 3),
+                },
+        sweep_length=1.0/frame_rate,
+        start_time=0.0,
+        blank_length=0.0,
+        blank_sweeps=0,
+        runs=n_repeats,
+        shuffle=False,
+        save_sweep_table=False,
+        )
+
+    # The duration of the stimulus is the number of unique stimuli 
+    # divided by the frame rate
+    number_conditions = len(list_of_spatialfreq)*\
+        len(list_of_phases)*len(list_of_orientations)*len(list_of_contrasts)
+
+    logging.info('Number of conditions for static gratings: %d', number_conditions)
+
+    duration_stim = number_conditions*n_repeats/frame_rate
+    end_stim = current_start_time+duration_stim
+    
+    stimulus_obj.set_display_sequence([(current_start_time, end_stim)])
+
+    return stimulus_obj, end_stim
+
+def create_drift(window, n_repeats, frame_rate, current_start_time,
+                  list_of_spatialfreq, list_of_orientations, 
+                  list_of_phases, drift_rates):
+    """Create drifting grating stimulus series.
+        args:
+            window: window object
+            n_repeats: number of repeats of the stimulus sequence
+            frame_rate: frame rate of the monitor
+            current_start_time: current start time of the stimulus
+            list_of_spatialfreq: list of spatial frequencies to be presented
+            list_of_orientations: list of orientations to be presented
+            list_of_phases: list of phases to be presented using the drift rates
+            drift_rates: list of drift rates to be presented
+        returns:
+            stimulus_obj: CamStim Stimulus object
+            end_stim: updated current start time of the next stimulus
+    """
+
+    final_phases = []
+    for drift in drift_rates:
+        final_phases += drift2Phase(list_of_phases, drift)
+
+    stimulus_obj = Stimulus(visual.GratingStim(window,
+                        pos=(0, 0),
+                        units='deg',
+                        tex="sqr",
+                        size=(250, 250),
+                        mask="None",
+                        texRes=256,
+                        sf=0.1,
+                        ),
+        sweep_params={
+                'Contrast': ([1], 0),
+                'SF': (list_of_spatialfreq, 1),
+                'Ori': (list_of_orientations, 2),
+                'Phase': (final_phases, 3),
+        },
+        sweep_length=1.0/frame_rate,
+        start_time=0.0,
+        blank_length=0,
+        blank_sweeps=0,
+        runs=n_repeats,
+        shuffle=False,
+        save_sweep_table=True,
+        )
+
+    # The duration of the stimulus is the number of unique stimuli 
+    # divided by the frame rate
+    number_conditions = len(list_of_spatialfreq)*\
+        len(list_of_orientations)*len(final_phases)
+    
+    logging.info('Number of conditions for drifting gratings: %s', number_conditions)
+
+    duration_stim = number_conditions*n_repeats/frame_rate
+    end_stim = current_start_time+duration_stim
+    
+    stimulus_obj.set_display_sequence([(current_start_time, end_stim)])
+
+    return stimulus_obj, end_stim
+
 def get_stimulus_sequence(window, SESSION_PARAMS_data_folder):
 
     ################# Parameters #################
     FPS = 30
-    testmode = True
-    SessionDuration = 120 ## not used if testmode is True
-    MAXRPT = 32
     SPATIALFREQ = [0.02, 0.04, 0.08]
     ORIENTATIONS = [0, 90]
     PHASES = [0, 90]
     DRIFTRATES = [12, 24]
-    NCOND = len(SPATIALFREQ)*len(PHASES)*len(ORIENTATIONS)
-    DRIFT_NCOND = len(SPATIALFREQ)*len(ORIENTATIONS)*len(DRIFTRATES)
     ADD_FLASHES = True
     ADD_STATIC = True
     ADD_DRIFT = True
+    Nrepeats = 1 # 32 # number of time the repeated sequences repeat
     ##############################################
 
-    if testmode:
-        Nrepeats = 1 # number of time the repeated sequences repeat
-    else:
-        Nrepeats = int(max([1, round(MAXRPT*SessionDuration/(120))]))
-
-    logging.info("NCOND: %d", NCOND)
-    logging.info("DRIFT_NCOND: %d", DRIFT_NCOND)
-    logging.info("Nrepeats: %d", Nrepeats)
-
     # Read in the stimulus sequence
-    UniqueStim =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
-                                             "UniqueStim1.txt"))
-    RepeatStim =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    # UniqueStim are not currently used in the pilot script
+    # UniqueStim1 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    #                                           "UniqueStim1.txt")) 
+    #      
+    # UniqueStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
+    #                                           "UniqueStim2.txt"))     
+
+    RepeatStim1 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                              "RepeatStim1.txt"))
-    UniqueStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
-                                              "UniqueStim2.txt"))
+    
+
     RepeatStim2 =  read_file(os.path.join(SESSION_PARAMS_data_folder, 
                                               "RepeatStim2.txt"))
 
-    # Calculate duration of each stimulus
-    DurationFFF = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS) /60
-    DurationGR =  (NCOND*Nrepeats*len(RepeatStim)/FPS) /60
-    TotalScriptDuration=2*(DurationFFF+DurationGR) #in minutes
-
-    Contrast = UniqueStim + Nrepeats*RepeatStim + UniqueStim2 + Nrepeats*RepeatStim2
-
-    logging.info("DurationFFF: %f min", DurationFFF)
-    logging.info("DurationGR: %f min", DurationGR, "min")
-    logging.info("TotalScriptDuration: %f min", TotalScriptDuration)
-
-    flash_time = (2*len(UniqueStim)/FPS + Nrepeats*len(RepeatStim)/FPS)
-    sg_time = (NCOND*Nrepeats*len(RepeatStim)/FPS)
-    dg_time = (DRIFT_NCOND*Nrepeats*len(RepeatStim)/FPS)
+    # This is used to keep track of the current start time of the stimulus
     current_start_time = 0
 
+    # This is a list of all the stimuli that will be presented
     all_stim = []
 
     if ADD_FLASHES:
-        fl_ds = [(current_start_time, current_start_time+flash_time)] 
+        flash_sequence1, current_start_time = create_flashes(
+                RepeatStim1, window, Nrepeats, FPS, current_start_time
+                )
+        all_stim.append(flash_sequence1)
 
-        # load FF stimuli
-        # FFF implemented as a grating with fixed sf=0, ori=0, and ph=0
-        # contrast is updated every video frame according to the loaded stimulus sequence
-        fl = Stimulus(visual.GratingStim(window,
-                            pos=(0, 0),
-                            units='deg',
-                            size=(300, 300),
-                            mask="None",
-                            texRes=256,
-                            sf=0,
-                            ),
-            # a dictionary that specifies the parameter values
-            # that will be swept or varied over time during the presentation of the stimulus
-            sweep_params={
-                        # wokrs similarly like for loops
-                        # for a fixed contrast value, Contrast is updated every video frame
-                    'Contrast': ([1], 0),
-                    'Color':(Contrast, 1)
-                    },
-            sweep_length=1.0/FPS,
-            start_time=0.0,
-            blank_length=0,
-            blank_sweeps=0,
-            runs = 1,
-            shuffle=False,
-            save_sweep_table=False,
-            )
-        fl.set_display_sequence(fl_ds)
-
-        current_start_time = current_start_time+flash_time
-
-        all_stim.append(fl)
+        flash_sequence2, current_start_time = create_flashes(
+                RepeatStim2, window, Nrepeats, FPS, current_start_time
+                )
+        all_stim.append(flash_sequence2)
+        logging.info("Flashes end at : %f min", current_start_time/60)
 
     if ADD_STATIC:
-        Contrast = RepeatStim2 
-
-        sg_ds = [(current_start_time, current_start_time+sg_time)]  ## calculate total time
-
-        # Standing (static) Grating with fixed sf, ori, and ph
-        # contrast is updated every video frame according to the loaded stimulus sequence
-        sg = Stimulus(visual.GratingStim(window,
-                            pos=(0, 0),
-                            units='deg',
-                            tex="sqr",
-                            size=(250, 250),
-                            mask="None",
-                            texRes=256,
-                            sf=0.1,
-                            ),
-            # a dictionary that specifies the parameter values
-            # that will be swept or varied over time during the presentation of the stimulus
-            sweep_params={
-                        # wokrs similarly like for loops
-                        # for a fixed contrast value, Contrast is updated every video frame
-                    'SF': (SPATIALFREQ, 0),
-                    'Ori': (ORIENTATIONS, 1),
-                    'Phase': (PHASES, 2),
-                    'Contrast': (Contrast, 3),
-                    },
-            sweep_length=1.0/FPS,
-            start_time=0.0,
-            blank_length=0.0,
-            blank_sweeps=0,
-            runs=1,
-            shuffle=False,
-            save_sweep_table=False,
-            )
-        sg.set_display_sequence(sg_ds)
-
-        current_start_time = current_start_time+sg_time
-
-        all_stim.append(sg)
+        sg_sequence, current_start_time = create_static(
+                RepeatStim1, window, Nrepeats, FPS, current_start_time,
+                SPATIALFREQ, ORIENTATIONS, PHASES
+                )
+        
+        all_stim.append(sg_sequence)
+        logging.info("Static gratings end at : %f min", current_start_time/60)
 
     if ADD_DRIFT:
-        Phase = RepeatStim 
+        dg_sequence, current_start_time = create_drift(
+                window, Nrepeats, FPS, current_start_time,
+                SPATIALFREQ, ORIENTATIONS, RepeatStim1, DRIFTRATES
+                )
+        
+        all_stim.append(dg_sequence)    
+        logging.info("Drifting gratings end at : %f min", current_start_time/60)
 
-        dg_ds = [(current_start_time, current_start_time+dg_time)]  ## calculate total time
-
-        phases = []
-        for drift in DRIFTRATES:
-            phases += drift2Phase(Phase, drift)
-
-        dg = Stimulus(visual.GratingStim(window,
-                            pos=(0, 0),
-                            units='deg',
-                            tex="sqr",
-                            size=(250, 250),
-                            mask="None",
-                            texRes=256,
-                            sf=0.1,
-                            ),
-            sweep_params={
-                    'Contrast': ([1], 0),
-                    'SF': (SPATIALFREQ, 1),
-                    'Ori': (ORIENTATIONS, 2),
-                    'Phase': (phases, 3),
-            },
-            sweep_length=1.0/FPS,
-            start_time=0.0,
-            blank_length=0,
-            blank_sweeps=0,
-            runs=1,
-            shuffle=False,
-            save_sweep_table=True,
-            )
-        dg.set_display_sequence(dg_ds)
-
-        all_stim.append(dg)
-
+    logging.info("Total duration of stimulus sequence: %f min", current_start_time/60)
+    # This is the stimulus sequence that will be presented
     return all_stim
 
 
