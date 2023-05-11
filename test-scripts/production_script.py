@@ -39,7 +39,7 @@ def create_flashes(list_of_contrasts, window, n_repeats, frame_rate, current_sta
     stimulus_obj = Stimulus(visual.GratingStim(window,
                         pos=(0, 0),
                         units='deg',
-                        size=(300, 300),
+                        size=(250, 250),
                         mask="None",
                         texRes=256,
                         sf=0,
@@ -96,7 +96,7 @@ def create_static(list_of_contrasts, window, n_repeats, frame_rate, current_star
                         size=(250, 250),
                         mask="None",
                         texRes=256,
-                        sf=0.1,
+                        sf=0.1, # this mimmicks visual coding experiments
                         ),
         # a dictionary that specifies the parameter values
         # that will be swept or varied over time during the presentation of the stimulus
@@ -114,7 +114,7 @@ def create_static(list_of_contrasts, window, n_repeats, frame_rate, current_star
         blank_sweeps=0,
         runs=n_repeats,
         shuffle=False,
-        save_sweep_table=False,
+        save_sweep_table=True,
         )
 
     # The duration of the stimulus is the number of unique stimuli 
@@ -177,7 +177,7 @@ def create_drift(window, n_repeats, frame_rate, current_start_time,
                         size=(250, 250),
                         mask="None",
                         texRes=256,
-                        sf=0.1,
+                        sf=0.1, # this mimmicks visual coding experiments
                         ),
         sweep_params={
                 'Contrast': ([1], 0),
